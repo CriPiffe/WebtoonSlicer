@@ -32,12 +32,12 @@ def start():
     if len(orPath) <=3:
         log.addTextToLabel(communicationEntry, 
             "Type a possible path, this is too short!"
-        )   
+        )
         return
     else:
         orPath = os.path.abspath(originPath.get())
     
-    if not orPath.isdir():
+    if not os.path.exists(orPath):
         log.addTextToLabel(communicationEntry, 
             "This path does not exist!"
         )  
@@ -45,18 +45,17 @@ def start():
     #check save folder
     if len(svPath) == 0:
         svPath = None
-        return
     elif len(svPath) <= 3:
         log.addTextToLabel(communicationEntry, 
             "Type a possible path, this is too short!"
-        )  
+        )
         return
     else:
         svPath = os.path.abspath(savePath.get())
     
     chapter.chapter(originPath=orPath, savePath=svPath).brutalSlice(offset=settings)
     log.addTextToLabel(communicationEntry, 
-        "finished!", separator='\n\n'
+        "Finished!", separator='\n\n'
     ) 
 
 

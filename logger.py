@@ -13,5 +13,5 @@ class logger(object):
 
     def addTextToLabel(self, label, text, separator='\n'):
         
-        self.addText(text, separetor=separator)
+        self.addText(text, separator=separator)
         label["text"] = self.__text
