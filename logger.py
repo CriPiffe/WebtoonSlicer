@@ -8,10 +8,11 @@ class logger(object):
         return self.__text
 
     def addText(self, text, separator='\n'):
-        
         self.__text = self.__text + separator + text
 
     def addTextToLabel(self, label, text, separator='\n'):
-        
         self.addText(text, separator=separator)
         label["text"] = self.__text
+
+    def clearText(self):
+        self.__text = ''

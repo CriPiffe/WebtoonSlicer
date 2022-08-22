@@ -1,5 +1,6 @@
 import tkinter as tk
 import os
+from time import time
 import chapter
 import logger
 
@@ -9,13 +10,15 @@ log = logger.logger()
 
 def checkSetting(entry, default):
     val = entry.get()
-    if val.isdigit():
+    if val.isdigit() and val > 0:
         val = int(val)
     else:
         val = default
     return val
 
 def start():
+    log.clearText()
+
     #check input parameters for page slicing
     minimumsize = checkSetting(minsize, 2500)
     rowDistance= checkSetting(scanDistance, 20)
@@ -30,7 +33,7 @@ def start():
     
     #check origin folder
     if len(orPath) <=3:
-        log.addTextToLabel(communicationEntry, 
+        log.addTextToLabel(communicationLabel, 
             "Type a possible path, this is too short!"
         )
         return
@@ -38,7 +41,7 @@ def start():
         orPath = os.path.abspath(originPath.get())
     
     if not os.path.exists(orPath):
-        log.addTextToLabel(communicationEntry, 
+        log.addTextToLabel(communicationLabel, 
             "This path does not exist!"
         )  
 
@@ -46,25 +49,47 @@ def start():
     if len(svPath) == 0:
         svPath = None
     elif len(svPath) <= 3:
-        log.addTextToLabel(communicationEntry, 
+        log.addTextToLabel(communicationLabel, 
             "Type a possible path, this is too short!"
         )
         return
     else:
         svPath = os.path.abspath(savePath.get())
-    
+    start = time()
     chapter.chapter(originPath=orPath, savePath=svPath).brutalSlice(offset=settings)
-    log.addTextToLabel(communicationEntry, 
-        "Finished!", separator='\n\n'
+    finish = str(time() - start) + " s"
+    log.addTextToLabel(communicationLabel, 
+        "Finished in !"+finish, separator='\n\n'
     ) 
 
+#### HELPER FUNCTION ####
+def helpMinsize():
+    log.clearText()
+    log.addTextToLabel(communicationLabel, 'The pixel minimum height of a sliced page.')
+    return True
+
+def helpScdist():
+    log.clearText()
+    log.addTextToLabel(communicationLabel, 'The pixel distance between two consecutive scanned row.')
+    return True
+
+def helpBorder():
+    log.clearText()
+    log.addTextToLabel(communicationLabel, 'The pixel distance used by the code to detect a possible panel border.')
+    return True
+    
+def helpSpacing():
+    log.clearText()
+    log.addTextToLabel(communicationLabel, 'The distance between two consecutive pixel when scannig a row.')
+    return True
 
 ## window spec
 window = tk.Tk()
 window.geometry('1000x600+0+0')
-window.title("Page Slicer 3000")
+window.title("Webtoon Slicer")
 window.resizable(False, False)
-##window.iconbitmap(pathToIcon)
+icon = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icon' + os.sep + 'icon.ico')
+window.iconbitmap(icon)
 
 ######## window frames
 # main frame
@@ -81,14 +106,24 @@ rightFrame.pack(side=tk.RIGHT)
 rightFrame.pack_propagate(0)
 
 #sub frame
-pathFrame = tk.Frame(master=leftFrame, highlightbackground="yellow", highlightthickness=2)
-pathFrame.pack(fill=tk.X)
+pathFrame = tk.Frame(
+    master=leftFrame,
+    #highlightbackground="yellow", highlightthickness=2
+    )
+pathFrame.pack(fill=tk.X, pady=20)
 
-logFrame = tk.Frame(master=rightFrame, height=600, highlightbackground="yellow", highlightthickness=2)
+logFrame = tk.Frame(
+    master=rightFrame, 
+    height=600, 
+    #highlightbackground="yellow", highlightthickness=2
+    )
 logFrame.pack(fill=tk.BOTH)
 
-settingFrame = tk.Frame(master=leftFrame, highlightbackground="yellow", highlightthickness=2)
-settingFrame.pack(fill=tk.X, pady=20)
+settingFrame = tk.Frame(
+    master=leftFrame
+    #highlightbackground="yellow", highlightthickness=2
+    )
+settingFrame.pack(fill=tk.X, pady=10)
 
 
 #path explain label
@@ -104,57 +139,127 @@ settingLabel = tk.Label(
 ).pack()
 
 #communication log label
-communicationEntry = tk.Label(
+communicationLabel = tk.Label(
     master=logFrame,
     height=600, 
     anchor='n',
-    #highlightbackground="green", highlightthickness=2
+    relief=tk.GROOVE
 )
-communicationEntry.pack(fill=tk.BOTH)
+communicationLabel.pack(fill=tk.BOTH)
 
-#path entry in path frame
+###### PATH ENTRY ######
+
+# origin path
+orpathFrame = tk.Frame(master=pathFrame)
+orpathFrame.pack(fill=tk.X, pady=10)
+originLabel = tk.Label(
+    master=orpathFrame,
+    width=10,
+    text="Chapter path"
+).pack(side=tk.LEFT)
 originPath = tk.Entry(
-    master=pathFrame
+    master=orpathFrame,
+    width=70
 )
-originPath.pack(fill=tk.X, pady=10)
+originPath.pack(fill=tk.X, side=tk.LEFT)
 
+# origin path
+svpathFrame = tk.Frame(master=pathFrame)
+svpathFrame.pack(fill=tk.X, pady=10)
+saveLabel = tk.Label(
+    master=svpathFrame,
+    width=10,
+    text="Saving folder"
+).pack(side=tk.LEFT)
 savePath = tk.Entry(
-    master=pathFrame
+    master=svpathFrame,
+    width=70
 )
-savePath.pack(fill=tk.X, pady=10)
+savePath.pack(fill=tk.X, side=tk.LEFT)
 
-# setting entry
+
+####### SETTING ENTRY #######
+
+# minimum size of the page
 minsizeFrame = tk.Frame(master=settingFrame)
 minsizeFrame.pack(fill=tk.X, pady=10)
 minsizeLabel = tk.Label(
     master=minsizeFrame,
-    text="Minimum\npage size", highlightbackground="green", highlightthickness=2
+    width=10,
+    text="Minimum\npage size"
 ).pack(side=tk.LEFT)
 minsize = tk.Entry(
     master=minsizeFrame
 )
 minsize.pack(fill=tk.X, side=tk.LEFT)
-#minsize.insert(tk.END,"Insert min size of the sliced page")
+helpminsizeButton = tk.Button(
+    master=minsizeFrame,
+    text="Help",
+    command=helpMinsize
+)
+helpminsizeButton.pack(fill=tk.X, side=tk.LEFT)
 
+# distance between 2 row to be scanned 
+scdistFrame = tk.Frame(master=settingFrame)
+scdistFrame.pack(fill=tk.X, pady=10)
+scdistLabel = tk.Label(
+    master=scdistFrame,
+    width=10,
+    text="Scan\ndistance"
+).pack(side=tk.LEFT)
 scanDistance = tk.Entry(
-    master=settingFrame
+    master=scdistFrame
 )
-scanDistance.pack(fill=tk.X, pady=10)
-#minsize.insert(tk.END,"Insert distance between consecutive row scan")
+scanDistance.pack(fill=tk.X, side=tk.LEFT)
+helpScdistButton = tk.Button(
+    master=scdistFrame,
+    text="Help",
+    command=helpScdist
+)
+helpScdistButton.pack(fill=tk.X, side=tk.LEFT)
 
+
+# border distance from the margin of the page
+borderFrame = tk.Frame(master=settingFrame)
+borderFrame.pack(fill=tk.X, pady=10)
+borderLabel = tk.Label(
+    master=borderFrame,
+    width=10,
+    text="Border size"
+).pack(side=tk.LEFT)
 bordersize = tk.Entry(
-    master=settingFrame
+    master=borderFrame
 )
-bordersize.pack(fill=tk.X, pady=10)
-#minsize.insert(tk.END,"Insert size for border check")
+bordersize.pack(fill=tk.X, side=tk.LEFT)
+helpborderButton = tk.Button(
+    master=borderFrame,
+    text="Help",
+    command=helpBorder
+)
+helpborderButton.pack(fill=tk.X, side=tk.LEFT)
 
+
+# spacing between scanned pixel
+spaceFrame = tk.Frame(master=settingFrame)
+spaceFrame.pack(fill=tk.X, pady=10)
+spaceLabel = tk.Label(
+    master=spaceFrame,
+    width=10,
+    text="Scan spacing"
+).pack(side=tk.LEFT)
 spacing = tk.Entry(
-    master=settingFrame
+    master=spaceFrame
 )
-spacing.pack(fill=tk.X, pady=10)
-#minsize.insert(tk.END,"Insert spacing for row check")
+spacing.pack(fill=tk.X, side=tk.LEFT)
+helpspacingButton = tk.Button(
+    master=spaceFrame,
+    text="Help",
+    command=helpSpacing
+)
+helpspacingButton.pack(fill=tk.X, side=tk.LEFT)
 
-#window button
+
+#start button
 startButton = tk.Button(
     master=settingFrame,
     text="Start!",
