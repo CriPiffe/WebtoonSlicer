@@ -1,11 +1,10 @@
 import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog
 import os
 from time import time
 import chapter
 import logger
-
-
-log = logger.logger()
 
 
 def checkSetting(entry, default):
@@ -55,12 +54,21 @@ def start():
         return
     else:
         svPath = os.path.abspath(savePath.get())
+    log.addTextToLabel(communicationLabel, 
+        "Starting to slice!!", separator='\n\n'
+    )
     start = time()
     chapter.chapter(originPath=orPath, savePath=svPath).brutalSlice(offset=settings)
     finish = str(time() - start) + " s"
     log.addTextToLabel(communicationLabel, 
-        "Finished in !"+finish, separator='\n\n'
+        "Finished in "+finish+"!", separator='\n'
     ) 
+
+#### BROWSE FUNCTION ####
+def browseFolder(entry):
+    entry.delete(0, tk.END)
+    path = filedialog.askdirectory()
+    entry.insert(0, path)
 
 #### HELPER FUNCTION ####
 def helpMinsize():
@@ -85,7 +93,7 @@ def helpSpacing():
 
 ## window spec
 window = tk.Tk()
-window.geometry('1000x600+0+0')
+window.geometry('1000x400+0+0')
 window.title("Webtoon Slicer")
 window.resizable(False, False)
 icon = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icon' + os.sep + 'icon.ico')
@@ -93,13 +101,13 @@ window.iconbitmap(icon)
 
 ######## window frames
 # main frame
-leftFrame = tk.Frame(master=window, width=500, height=600,
+leftFrame = tk.Frame(master=window, width=600, height=400,
     #highlightbackground="blue", highlightthickness=2
 )
 leftFrame.pack(side=tk.LEFT)
 leftFrame.pack_propagate(0)
 
-rightFrame = tk.Frame(master=window, width=500, height=600, 
+rightFrame = tk.Frame(master=window, width=400, height=400, 
     #highlightbackground="blue", highlightthickness=2
 )
 rightFrame.pack(side=tk.RIGHT)
@@ -127,55 +135,69 @@ settingFrame.pack(fill=tk.X, pady=10)
 
 
 #path explain label
-explain = tk.Label(
+explain = ttk.Label(
     master=pathFrame,
     text="Insert origin and save path"
 ).pack()
 
 #setting explain label
-settingLabel = tk.Label(
+settingLabel = ttk.Label(
     master=settingFrame,
     text="Set all the wanted parameters"
 ).pack()
 
 #communication log label
-communicationLabel = tk.Label(
+communicationLabel = ttk.Label(
     master=logFrame,
-    height=600, 
     anchor='n',
+    justify=tk.CENTER,
+    wraplengt=350,
     relief=tk.GROOVE
 )
-communicationLabel.pack(fill=tk.BOTH)
+communicationLabel.pack(fill=tk.BOTH, ipady=300)
 
 ###### PATH ENTRY ######
 
 # origin path
 orpathFrame = tk.Frame(master=pathFrame)
 orpathFrame.pack(fill=tk.X, pady=10)
-originLabel = tk.Label(
+originLabel = ttk.Label(
     master=orpathFrame,
-    width=10,
+    width=13,
     text="Chapter path"
 ).pack(side=tk.LEFT)
-originPath = tk.Entry(
+originPath = ttk.Entry(
     master=orpathFrame,
     width=70
 )
 originPath.pack(fill=tk.X, side=tk.LEFT)
+browsePathButton = ttk.Button(
+    master=orpathFrame,
+    text="Browse...",
+    command=lambda: browseFolder(originPath)
+)
+browsePathButton.pack(fill=tk.X, side=tk.LEFT)
+
 
 # origin path
 svpathFrame = tk.Frame(master=pathFrame)
 svpathFrame.pack(fill=tk.X, pady=10)
-saveLabel = tk.Label(
+saveLabel = ttk.Label(
     master=svpathFrame,
-    width=10,
+    width=13,
     text="Saving folder"
 ).pack(side=tk.LEFT)
-savePath = tk.Entry(
+savePath = ttk.Entry(
     master=svpathFrame,
     width=70
 )
 savePath.pack(fill=tk.X, side=tk.LEFT)
+browsePathButton = ttk.Button(
+    master=svpathFrame,
+    text="Browse...",
+    command=lambda: browseFolder(savePath)
+)
+browsePathButton.pack(fill=tk.X, side=tk.LEFT)
 
 
 ####### SETTING ENTRY #######
@@ -183,16 +205,18 @@ savePath.pack(fill=tk.X, side=tk.LEFT)
 # minimum size of the page
 minsizeFrame = tk.Frame(master=settingFrame)
 minsizeFrame.pack(fill=tk.X, pady=10)
-minsizeLabel = tk.Label(
+minsizeLabel = ttk.Label(
     master=minsizeFrame,
-    width=10,
-    text="Minimum\npage size"
+    width=13,
+    text="Min. page size"
 ).pack(side=tk.LEFT)
-minsize = tk.Entry(
-    master=minsizeFrame
+minsize = ttk.Entry(
+    master=minsizeFrame,
+
 )
 minsize.pack(fill=tk.X, side=tk.LEFT)
-helpminsizeButton = tk.Button(
+minsize.insert(0, "2500")
+helpminsizeButton = ttk.Button(
     master=minsizeFrame,
     text="Help",
     command=helpMinsize
@@ -202,16 +226,17 @@ helpminsizeButton.pack(fill=tk.X, side=tk.LEFT)
 # distance between 2 row to be scanned 
 scdistFrame = tk.Frame(master=settingFrame)
 scdistFrame.pack(fill=tk.X, pady=10)
-scdistLabel = tk.Label(
+scdistLabel = ttk.Label(
     master=scdistFrame,
-    width=10,
-    text="Scan\ndistance"
+    width=13,
+    text="Scan distance"
 ).pack(side=tk.LEFT)
-scanDistance = tk.Entry(
+scanDistance = ttk.Entry(
     master=scdistFrame
 )
 scanDistance.pack(fill=tk.X, side=tk.LEFT)
-helpScdistButton = tk.Button(
+scanDistance.insert(0, "20")
+helpScdistButton = ttk.Button(
     master=scdistFrame,
     text="Help",
     command=helpScdist
@@ -222,16 +247,17 @@ helpScdistButton.pack(fill=tk.X, side=tk.LEFT)
 # border distance from the margin of the page
 borderFrame = tk.Frame(master=settingFrame)
 borderFrame.pack(fill=tk.X, pady=10)
-borderLabel = tk.Label(
+borderLabel = ttk.Label(
     master=borderFrame,
-    width=10,
+    width=13,
     text="Border size"
 ).pack(side=tk.LEFT)
-bordersize = tk.Entry(
+bordersize = ttk.Entry(
     master=borderFrame
 )
 bordersize.pack(fill=tk.X, side=tk.LEFT)
-helpborderButton = tk.Button(
+bordersize.insert(0, "40")
+helpborderButton = ttk.Button(
     master=borderFrame,
     text="Help",
     command=helpBorder
@@ -242,16 +268,17 @@ helpborderButton.pack(fill=tk.X, side=tk.LEFT)
 # spacing between scanned pixel
 spaceFrame = tk.Frame(master=settingFrame)
 spaceFrame.pack(fill=tk.X, pady=10)
-spaceLabel = tk.Label(
+spaceLabel = ttk.Label(
     master=spaceFrame,
-    width=10,
+    width=13,
     text="Scan spacing"
 ).pack(side=tk.LEFT)
-spacing = tk.Entry(
+spacing = ttk.Entry(
     master=spaceFrame
 )
 spacing.pack(fill=tk.X, side=tk.LEFT)
-helpspacingButton = tk.Button(
+spacing.insert(0, "5")
+helpspacingButton = ttk.Button(
     master=spaceFrame,
     text="Help",
     command=helpSpacing
@@ -260,15 +287,16 @@ helpspacingButton.pack(fill=tk.X, side=tk.LEFT)
 
 
 #start button
-startButton = tk.Button(
+startButton = ttk.Button(
     master=settingFrame,
     text="Start!",
-    width=5,
-    height=2,
     command=start
 )
 startButton.pack()
 
 
 if __name__ == "__main__":
+    
+    log = logger.logger()
+    log.presentation(communicationLabel)
     window.mainloop()
