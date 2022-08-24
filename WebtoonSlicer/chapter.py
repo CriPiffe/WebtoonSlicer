@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import os
 
-import slicer as slicer
-from assets import Assets
+from . import slicer as slicer
+from .assets import Assets
 
 
 class chapter(object):

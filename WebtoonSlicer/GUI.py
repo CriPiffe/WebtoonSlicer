@@ -5,8 +5,8 @@ from tkinter import filedialog
 import os
 from time import time
 
-import chapter
-from assets import Assets
+from . import chapter
+from .assets import Assets
 
 def start():
     Assets.log.clearText()
