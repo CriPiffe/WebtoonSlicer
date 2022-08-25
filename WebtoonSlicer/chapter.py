@@ -33,6 +33,8 @@ class chapter(object):
         self.fileExt = fileExt
         self.settings = self.checkSettings(settings)
         self.allPages = self.unificator()
+
+        self.repaged = False
         
     # check if settings are good (and return them in int) 
     # or otherwise return the dfault ones
@@ -104,9 +106,10 @@ class chapter(object):
 
     #from the united chapter to all the pages with only one panel 
     # (at least some given pixel)
-    def repage(self):
+    def repage(self, pageOffset=200):
         self.pages.clear()     #delete all pages already created from previous works
-        pageOffset = self.settings[0]
+        self.repaged = True
+
         rowOffset = self.settings[1]
         borderOffset = self.settings[2]
         spacing = self.settings[3]
@@ -127,11 +130,42 @@ class chapter(object):
                 startNewPage = endPage
                 self.nPages += 1
                 rowIndex += pageOffset
-                cv2.imwrite(self.savePath + "\\" + str(self.nPages).zfill(3) + self.fileExt, self.pages[self.nPages-1])
+                #cv2.imwrite(self.savePath + "\\" + str(self.nPages).zfill(3) + self.fileExt, self.pages[self.nPages-1])
             
             panelDistance = 0
         
         self.pages.append(slicer.slice(self.allPages, startNewPage, self.totalHeigth, self.width))
         self.nPages += 1
-        cv2.imwrite(self.savePath + "\\" + str(self.nPages).zfill(3) + self.fileExt,self.pages[self.nPages-1])
+        #cv2.imwrite(self.savePath + "\\" + str(self.nPages).zfill(3) + self.fileExt,self.pages[self.nPages-1])
+        #os.startfile(self.savePath)
+
+    def optimalSlice(self): #v1.0
+
+        pageOffset = self.settings[0]
+        
+        if not self.repaged: 
+            self.repage()
+        
+        for i in range(1,self.nPages):
+            if len(self.pages) > i:
+                if self.pages[i].shape[0] + self.pages[i-1].shape[0] < pageOffset:
+                    newPage = np.zeros(
+                        (self.pages[i].shape[0] + self.pages[i-1].shape[0], self.width, 3), 
+                        dtype=np.uint8
+                        )
+                    newPage[:self.pages[i-1].shape[0], :, :3] = self.pages[i-1]
+                    newPage[-self.pages[i].shape[0]:, :, :3] = self.pages[i]
+                    del self.pages[i-1]
+                    self.pages.insert(i-1, newPage)
+                    del self.pages[i]
+                    i -= 1
+            else:
+                break
+        
+        self.nPages = len(self.pages)
+        
+        for i in range(self.nPages):
+            cv2.imwrite(self.savePath + "\\" + str(i).zfill(3) + self.fileExt,self.pages[i])
+        
         os.startfile(self.savePath)
+

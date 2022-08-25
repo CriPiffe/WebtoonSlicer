@@ -59,7 +59,10 @@ def start():
         fileExt=inputeExtension, 
         settings=settings
     )
-    cap.repage()
+    if slicerSel.get() == Assets.supportedSlicing[0]:
+        cap.brutalSlice()
+    else:
+        cap.optimalSlice()
     del cap
     Assets.log.addTextToLabel(communicationLabel, 
         "Finished in " + str(time()-start) + 's!', separator='\n\n'
@@ -81,7 +84,7 @@ window = tk.Tk()
 window.geometry('1000x400+0+0')
 window.title("Webtoon Slicer")
 window.resizable(False, False)
-window.iconbitmap(Assets.pathToIcon)
+#window.iconbitmap(Assets.pathToIcon)
 
 ######## window frames
 # main frame
@@ -187,7 +190,7 @@ browsePathButton.pack(fill=tk.X, side=tk.LEFT)
 ####### SETTING FRAME #######
 
 setFrame=[]
-for i in range(5):
+for i in range(6):
     setFrame.append(tk.Frame(master=settingFrame))
     setFrame[i].pack(fill=tk.X, pady=5)
     minsizeLabel = ttk.Label(
@@ -239,13 +242,21 @@ for i in range(5):
     ).pack(fill=tk.X, side=tk.LEFT)
 
 
+#slicer selection
+slicerSel = tk.StringVar()
+slicerOpt = ttk.OptionMenu(
+    setFrame[5],
+    slicerSel,
+    *Assets.supportedSlicing
+).pack(side=tk.LEFT)
+
 #start button
 startButton = ttk.Button(
-    master=settingFrame,
+    master=setFrame[5],
     text="Start!",
     command=start
 )
-startButton.pack()
+startButton.pack(side=tk.RIGHT, padx=20)
 
 
 def main():

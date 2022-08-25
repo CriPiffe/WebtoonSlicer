@@ -7,10 +7,14 @@ class Assets(object):
     pathToIcon = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icon' + os.sep + 'icon.ico')
     defaultSetting = [2500, 20, 40, 5]
     supportedExtension = ('jpg', 'png')
+    supportedSlicing = ['Brutal', 'Optimal']
     settingLabel = [
-        "Min. page size", "Scan distance", 
-        "Border size", "Scan spacing", 
-        "Output extension"
+        "Min. page size", 
+        "Scan distance", 
+        "Border size", 
+        "Scan spacing", 
+        "Output ext.",
+        "Select slicer"
     ]
     helpButton =[
         'The pixel minimum height of a sliced page.',
