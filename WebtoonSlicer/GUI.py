@@ -53,12 +53,14 @@ def start():
         "Starting to slice!!", separator='\n\n'
     )
     start=time()
-    chapter.chapter(
+    cap = chapter.chapter(
         originPath=orPath, 
         savePath=svPath,
         fileExt=inputeExtension, 
         settings=settings
-    ).brutalSlice()
+    )
+    cap.repage()
+    del cap
     Assets.log.addTextToLabel(communicationLabel, 
         "Finished in " + str(time()-start) + 's!', separator='\n\n'
     )
@@ -182,112 +184,59 @@ browsePathButton = ttk.Button(
 browsePathButton.pack(fill=tk.X, side=tk.LEFT)
 
 
-####### SETTING ENTRY #######
+####### SETTING FRAME #######
 
-#TODO:  function for settingFrame = []
+setFrame=[]
+for i in range(5):
+    setFrame.append(tk.Frame(master=settingFrame))
+    setFrame[i].pack(fill=tk.X, pady=5)
+    minsizeLabel = ttk.Label(
+        master=setFrame[i],
+        width=14,
+        text=Assets.settingLabel[i]
+    ).pack(side=tk.LEFT)
 
 # minimum size of the page
-minsizeFrame = tk.Frame(master=settingFrame)
-minsizeFrame.pack(fill=tk.X, pady=5)
-minsizeLabel = ttk.Label(
-    master=minsizeFrame,
-    width=14,
-    text="Min. page size"
-).pack(side=tk.LEFT)
 minsize = ttk.Entry(
-    master=minsizeFrame,
-
+    master=setFrame[0]
 )
 minsize.pack(fill=tk.X, side=tk.LEFT)
 minsize.insert(0, "2500")
-helpminsizeButton = ttk.Button(
-    master=minsizeFrame,
-    text="Help",
-    command=lambda: help(0)
-)
-helpminsizeButton.pack(fill=tk.X, side=tk.LEFT)
 
 # distance between 2 row to be scanned 
-scdistFrame = tk.Frame(master=settingFrame)
-scdistFrame.pack(fill=tk.X, pady=5)
-scdistLabel = ttk.Label(
-    master=scdistFrame,
-    width=14,
-    text="Scan distance"
-).pack(side=tk.LEFT)
 scanDistance = ttk.Entry(
-    master=scdistFrame
+    master=setFrame[1]
 )
 scanDistance.pack(fill=tk.X, side=tk.LEFT)
 scanDistance.insert(0, "20")
-helpScdistButton = ttk.Button(
-    master=scdistFrame,
-    text="Help",
-    command=lambda: help(1)
-)
-helpScdistButton.pack(fill=tk.X, side=tk.LEFT)
-
 
 # border distance from the margin of the page
-borderFrame = tk.Frame(master=settingFrame)
-borderFrame.pack(fill=tk.X, pady=5)
-borderLabel = ttk.Label(
-    master=borderFrame,
-    width=14,
-    text="Border size"
-).pack(side=tk.LEFT)
 bordersize = ttk.Entry(
-    master=borderFrame
+    master=setFrame[2]
 )
 bordersize.pack(fill=tk.X, side=tk.LEFT)
 bordersize.insert(0, "40")
-helpborderButton = ttk.Button(
-    master=borderFrame,
-    text="Help",
-    command=lambda: help(2)
-)
-helpborderButton.pack(fill=tk.X, side=tk.LEFT)
-
 
 # spacing between scanned pixel
-spaceFrame = tk.Frame(master=settingFrame)
-spaceFrame.pack(fill=tk.X, pady=5)
-spaceLabel = ttk.Label(
-    master=spaceFrame,
-    width=14,
-    text="Scan spacing"
-).pack(side=tk.LEFT)
 spacing = ttk.Entry(
-    master=spaceFrame
+    master=setFrame[3]
 )
 spacing.pack(fill=tk.X, side=tk.LEFT)
 spacing.insert(0, "5")
-helpspacingButton = ttk.Button(
-    master=spaceFrame,
-    text="Help",
-    command=lambda: help(3)
-)
-helpspacingButton.pack(fill=tk.X, side=tk.LEFT)
 
 # spacing between scanned pixel
-extFrame = tk.Frame(master=settingFrame)
-extFrame.pack(fill=tk.X, pady=5)
-extLabel = ttk.Label(
-    master=extFrame,
-    width=14,
-    text="Input extension"
-).pack(side=tk.LEFT)
 extension = ttk.Entry(
-    master=extFrame
+    master=setFrame[4]
 )
 extension.pack(fill=tk.X, side=tk.LEFT)
 extension.insert(0, "jpg")
-helpextButton = ttk.Button(
-    master=extFrame,
-    text="Help",
-    command=lambda: help(4)
-)
-helpextButton.pack(fill=tk.X, side=tk.LEFT)
+
+for i in range(5):
+    helpButton = ttk.Button(
+        master=setFrame[i],
+        text="Help",
+        command=lambda: help(i)
+    ).pack(fill=tk.X, side=tk.LEFT)
 
 
 #start button

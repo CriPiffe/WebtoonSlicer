@@ -32,9 +32,10 @@ class chapter(object):
         self.width = width
         self.fileExt = fileExt
         self.settings = self.checkSettings(settings)
-        self.allPages = self.unificator(originPath)
+        self.allPages = self.unificator()
         
-
+    # check if settings are good (and return them in int) 
+    # or otherwise return the dfault ones
     def checkSettings(self,settings):
         for i in range(4):
             if type(settings[i]) is str:
@@ -49,15 +50,15 @@ class chapter(object):
 
         return settings
 
-
-
-    def unificator(self, path):
+    # unify all the images in the originPath folder 
+    # in one image to be more easy to work with
+    def unificator(self):
         img = []
 
-        for filename in os.listdir(path):
+        for filename in os.listdir(self.originPath):
     
-            if filename.endswith('.jpg'):
-                imgTemp = cv2.imread(path + '\\' +filename)
+            if filename.endswith(Assets.supportedExtension):
+                imgTemp = cv2.imread(self.originPath + '\\' +filename)
                 img.append(imgTemp)
                 self.totalHeigth += imgTemp.shape[0]
                 self.nImage += 1
@@ -73,8 +74,10 @@ class chapter(object):
             hPrev += hNext
         return allPages
     
-    
+    # Whenever it finds a row where it can slice, 
+    # it slices a page 'till the and of the chapter
     def brutalSlice(self):
+        self.pages.clear()     #delete all pages already created from previous works
         pageOffset = self.settings[0]
         rowOffset = self.settings[1]
         borderOffset = self.settings[2]
@@ -99,5 +102,36 @@ class chapter(object):
         cv2.imwrite(self.savePath + "\\" + str(self.nPages).zfill(3) + self.fileExt,self.pages[self.nPages-1])
         os.startfile(self.savePath)
 
-            
+    #from the united chapter to all the pages with only one panel 
+    # (at least some given pixel)
+    def repage(self):
+        self.pages.clear()     #delete all pages already created from previous works
+        pageOffset = self.settings[0]
+        rowOffset = self.settings[1]
+        borderOffset = self.settings[2]
+        spacing = self.settings[3]
+        rowIndex = pageOffset
+        panelDistance = 0
+        startNewPage = 0
 
+        while rowIndex < self.totalHeigth - 200:
+            while (rowIndex < self.totalHeigth) and not(slicer.checkIfSlice(self.allPages[rowIndex,:], borderOffset=borderOffset, spacing=spacing)):
+                rowIndex += rowOffset
+            while (rowIndex < self.totalHeigth) and (slicer.checkIfSlice(self.allPages[rowIndex,:], borderOffset=borderOffset, spacing=spacing)):
+                rowIndex += rowOffset
+                panelDistance += rowOffset
+
+            if panelDistance > 10:
+                endPage = rowIndex - panelDistance // 2
+                self.pages.append(slicer.slice(self.allPages, startNewPage, endPage, self.width))
+                startNewPage = endPage
+                self.nPages += 1
+                rowIndex += pageOffset
+                cv2.imwrite(self.savePath + "\\" + str(self.nPages).zfill(3) + self.fileExt, self.pages[self.nPages-1])
+            
+            panelDistance = 0
+        
+        self.pages.append(slicer.slice(self.allPages, startNewPage, self.totalHeigth, self.width))
+        self.nPages += 1
+        cv2.imwrite(self.savePath + "\\" + str(self.nPages).zfill(3) + self.fileExt,self.pages[self.nPages-1])
+        os.startfile(self.savePath)

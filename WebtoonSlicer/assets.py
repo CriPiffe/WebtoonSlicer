@@ -6,11 +6,11 @@ class Assets(object):
     log = logger.logger()
     pathToIcon = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icon' + os.sep + 'icon.ico')
     defaultSetting = [2500, 20, 40, 5]
-    supportedExtension = ['jpg', 'png']
+    supportedExtension = ('jpg', 'png')
     settingLabel = [
         "Min. page size", "Scan distance", 
         "Border size", "Scan spacing", 
-        "Input extension"
+        "Output extension"
     ]
     helpButton =[
         'The pixel minimum height of a sliced page.',
